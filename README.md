@@ -2,8 +2,9 @@
 
 ## Mistral w/ Langchain + LLama.cpp
 
-[Mistral 7b](https://mistral.ai/news/announcing-mistral-7b/)
+Model: [Mistral 7b](https://mistral.ai/news/announcing-mistral-7b/)
 
+Prompts are from: [LLaVA](https://github.com/haotian-liu/LLaVA/tree/main/playground/data/prompts)
 
 ### Steps
 
