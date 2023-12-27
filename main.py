@@ -97,15 +97,6 @@ for resp_type, prompt in final_prompts.items():
 
 
 # %%
-# for fp in description_test_fps:
-#     cap = read_file(fp)
-#     for resp_type, llm_chain in llm_chains.items():
-#         print(f"{resp_type} .....................")
-#         response = llm_chain.invoke({"input": cap})
-
-#         print(response)
-
-# %%
 for resp_type, prompt in final_prompts.items():
     print(f"{resp_type} .....................")
     test_fps = sorted(glob.glob(f"./test_queries/{resp_type}/*_caps.txt"))
