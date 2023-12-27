@@ -1,0 +1,10 @@
+A large clock sitting in the middle of a room.
+a clock on display in a museum
+A large wood and glass grandfather clock sitting on the floor.
+A clock is on display in a museum.
+A large mechanical clock is in the middle of a room.
+
+clock: [0.39, 0.597, 0.063, 0.169]
+person: [0.13, 0.203, 0.534, 0.63]
+person: [0.945, 1, 0.52, 0.721]
+person: [0.716, 0.749, 0.516, 0.608]
