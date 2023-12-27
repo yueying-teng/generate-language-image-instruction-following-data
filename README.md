@@ -1,10 +1,33 @@
-# Generate visual instruction following data
+# Generate language-image instruction-following data
 
-## Mistral w/ Langchain + LLama.cpp
+**Mistral assisted visual Instruction Data Generation**
+(with Langchain + LLama.cpp)
 
-Model: [Mistral 7b](https://mistral.ai/news/announcing-mistral-7b/)
+>Follows Chapter 3. GPT-assisted Visual Instruction Data Generation from the [LLaVa paper](https://arxiv.org/pdf/2304.08485.pdf).
 
-Prompts are from: [LLaVA](https://github.com/haotian-liu/LLaVA/tree/main/playground/data/prompts)
+A few manually designed examples from [here](https://github.com/haotian-liu/LLaVA/tree/main/playground/data/prompts) are the only human annotations that are used as seed examples in in-context-learning to query [Mistral 7b](https://mistral.ai/news/announcing-mistral-7b/).
+
+Three types of instruction-following data are generated this way:
+1. Conversation
+2. Detailed description
+2. Complex reasoning
+
+In order to encode an image into its visual features to prompt a text-only Mistral, two types of symbolic representations are used:
+1. Captions
+2. Bounding boxes
+
+### Overall prompt structure for each image
+```
+[
+    {"role":"system", "content":"system message"},
+    {"role":"user", "content":"context 000"},
+    {"role":"assistant", "content":"response 000"},
+    {"role":"user", "content":"context 001"},
+    {"role":"assistant", "content":"response 001"},
+    ...
+    {"role":"user", "content":"query(Captions or Captions + Bounding boxes)"},
+]
+```
 
 ### Steps
 
@@ -63,7 +86,7 @@ What sets grandfather clocks apart from other types of clocks is
 
 ```
 
-3. Detail description
+3. Detailed description
 ```
 AI: The image shows a large clock sitting in the middle of a room, likely an antique or decorative piece. Several people are visible near the clock, including one person who is standing directly in front of it and looking at the time with great interest, while another person stands nearby, possibly admiring its beauty.
 
