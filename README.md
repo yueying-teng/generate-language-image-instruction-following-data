@@ -31,12 +31,34 @@ In order to encode an image into its visual features to prompt a text-only Mistr
 
 ### Steps
 
-1. download the gguf model `mistral-7b-instruct-v0.1.Q4_0.gguf`
-```bash
-cd models
+1. download the data and gguf model
 
-wget https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_0.gguf
-```
+    `mistral-7b-instruct-v0.1.Q4_0.gguf`
+    ```bash
+    cd models
+
+    wget https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_0.gguf
+    ```
+
+    `COCO 2017`
+    ```bash
+    cd COCO2017
+
+    wget http://images.cocodataset.org/annotations/annotations_trainval2017.zip
+    ```
+
+    [`LLaVA-Instruct-150K`](https://huggingface.co/datasets/liuhaotian/LLaVA-Instruct-150K)
+    ```bash
+    git lfs install
+    git clone https://huggingface.co/datasets/liuhaotian/LLaVA-Instruct-150K
+    ```
+
+    [`LLaVA-CC3M-Pretrain-595K`](https://huggingface.co/datasets/liuhaotian/LLaVA-CC3M-Pretrain-595K)
+    ```bash
+    git lfs install
+    git clone https://huggingface.co/datasets/liuhaotian/LLaVA-CC3M-Pretrain-595K
+    ```
+
 
 2. create conda environment and install dependencies
 ```bash
