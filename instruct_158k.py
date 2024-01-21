@@ -54,7 +54,7 @@ def update_detail_23k(
         human_input = symbolic_rep["caption"] + "\n\n" + symbolic_rep["bbox"]
         response = llm_chains["detail_description"].invoke({"input": human_input})
 
-        list_data_dict[i]["conversations"][1]["value"] = response[5:]
+        list_data_dict[i]["conversations"][1]["value"] = response.split("AI:")[-1].strip().rstrip()
 
     save_to_json(list_data_dict, output_fp)
 
@@ -91,7 +91,7 @@ def update_complex_77k(
         response = llm_chains["complex_reasoning"].invoke({"input": human_input})
 
         qa = response.split("Question:")[-1].split("===")
-        question = qa[0].rstrip("\n").strip("\n")
+        question = qa[0].rstrip("\n").strip("\n").strip().rstrip()
         answer = qa[-1].split("Answer:")[-1].strip("\n")
 
         _ = replace_instruction([list_data_dict[i]], [question], patterns)
@@ -108,3 +108,49 @@ update_complex_77k(
     test_first_k=2,  # update the entire complex_77k data using float("-inf")
     output_fp="updated_complex_77k.json",
 )
+
+# %%
+def update_conv_58k(
+    conv_58k_fp,
+    symbolic_rep_df,
+    llm_chains,
+    test_first_k=2,  # update the entire conv_58k data using float("-inf")
+    output_fp="updated_conv_58k.json",
+):
+    list_data_dict = json.load(open(conv_58k_fp, "r"))
+
+    for i in range(min(test_first_k, len(list_data_dict))):
+        image = list_data_dict[i]["image"]
+        symbolic_rep = symbolic_rep_df[symbolic_rep_df["image"] == image].iloc[0]
+
+        human_input = symbolic_rep["caption"]
+        response = llm_chains["conversation"].invoke({"input": human_input})
+
+        sections = response.split('===')
+        qa_list = []
+        for j, section in enumerate(sections):
+            if j % 2 == 0:
+                q = section.split("Question:")[-1].strip("\n").rstrip("\n").strip().rstrip()
+                if j == 0:
+                    replace_instruction([list_data_dict[i]], [q], patterns)
+                    qa_list.append(list_data_dict[i]["conversations"][0])
+                else:
+                    qa_list.append({"from": "human", "value": q})
+            else:
+                a = section.split("Answer:")[-1].strip("\n").rstrip("\n").strip().rstrip()
+                qa_list.append({"from": "gpt", "value": a})
+
+
+        list_data_dict[i]["conversations"] = qa_list
+
+    save_to_json(list_data_dict, output_fp)
+
+# %%
+update_conv_58k(
+    conv_58k_fp="../LLaVA-Instruct-150K/conversation_58k.json",
+    symbolic_rep_df=symbolic_rep_df,
+    llm_chains=llm_chains,
+    test_first_k=2,  # update the entire conv_58k data using float("-inf")
+    output_fp="updated_conv_58k.json",
+)
+
