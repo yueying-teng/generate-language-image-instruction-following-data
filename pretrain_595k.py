@@ -27,6 +27,11 @@ def replace_instruction(list_data_dict, replacing_instructions, patterns):
 
     return list_data_dict
 
+
+def save_to_json(data, output_fp):
+    with open(output_fp, "w") as f:
+        json.dump(data, f)
+
 # %%
 if __name__ == "__main__":
     data_path = "../LLaVA-CC3M-Pretrain-595K/chat.json"
@@ -34,5 +39,4 @@ if __name__ == "__main__":
 
     list_data_dict = replace_instruction(list_data_dict, replacing_instructions, patterns)
 
-    with open("../LLaVA-CC3M-Pretrain-595K/chat_instruction_replaced.json", "w") as f:
-        json.dump(list_data_dict, f)
+    save_to_json(list_data_dict, "../LLaVA-CC3M-Pretrain-595K/chat_instruction_replaced.json")
