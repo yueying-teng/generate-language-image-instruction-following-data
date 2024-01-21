@@ -66,7 +66,7 @@ conda create -n mistral python=3.10.0
 
 conda activate mistral
 
-pip3 install -r requirements.txt
+pip3 install -r requirements.cpu.txt
 ```
 
 3. run `main.py` interactively using `shift + return`
