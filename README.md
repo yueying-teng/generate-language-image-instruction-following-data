@@ -37,7 +37,7 @@ In order to encode an image into its visual features to prompt a text-only Mistr
     ```bash
     cd models
 
-    wget https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_0.gguf
+    wget https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q5_K_M.gguf
     ```
 
     `COCO 2017`
@@ -46,6 +46,8 @@ In order to encode an image into its visual features to prompt a text-only Mistr
 
     wget http://images.cocodataset.org/annotations/annotations_trainval2017.zip
     ```
+
+    **make sure `git lfs` is install first**
 
     [`LLaVA-Instruct-150K`](https://huggingface.co/datasets/liuhaotian/LLaVA-Instruct-150K)
     ```bash
@@ -66,10 +68,17 @@ conda create -n mistral python=3.10.0
 
 conda activate mistral
 
-pip3 install -r requirements.cpu.txt
+pip install -r requirements.cpu.txt
+
+# to run llama-cpp-python on NVIDIA GPUs
+pip install -r requirements.gpu.txt
+
+export CMAKE_ARGS=-DLLAMA_CUBLAS=on
+export FORCE_CMAKE=1
+pip install llama-cpp-python==0.2.31 --force-reinstall --upgrade --no-cache-dir
 ```
 
-3. run `main.py` interactively using `shift + return`
+3. install `Jupyter` extension first in VS Code, then run `run_on_test_queries.py` interactively using `shift + return`.
 
 
 ### Generated data
