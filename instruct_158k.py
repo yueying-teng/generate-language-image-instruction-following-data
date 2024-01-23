@@ -11,23 +11,20 @@ from model_utils import get_llm_chains
 symbolic_rep_df = pd.read_pickle("symbolic_representation_instruct_150k.pkl")
 missing_bbox = pd.read_pickle("instruct_150k_missing_bbox.pkl")["image"]
 
-# %%
-model_path = "./models/mistral-7b-instruct-v0.1.Q4_0.gguf"
-
 # initialize LlamaCpp LLM model
 # n_gpu_layers, n_batch, and n_ctx are for GPU support.
 # When not set, CPU will be used.
 # set 1 for Mac m2, and higher numbers based on your GPU support
 llm = LlamaCpp(
-        model_path=model_path,
+        model_path="./models/mistral-7b-instruct-v0.1.Q5_K_M.gguf",
         temperature=0.7,
         repeat_penalty=1.2,
         top_p=1.,
         top_k=40,
-        max_tokens=256,
+        max_tokens=640,
         seed=2023,
-        # n_gpu_layers=1,
-        # n_batch=512,
+        n_gpu_layers=33,
+        n_batch=1024,
         n_ctx=4096,
         verbose=True,
         )
@@ -60,9 +57,20 @@ def update_detail_23k(
 
 # %%
 replacing_instructions = [
-    "testing 01",
-    "testing 02",
-    "testing 03",
+    "Write an descriptive depiction of the picture you see.",
+    "Provide a detailed description of the given image.",
+    "Render a meticulous account of the various aspects of the image.",
+    "Share an elaborate explanation of the picture before you.",
+    "Produce a thorough rundown of the presented image.",
+    "Offer an exhaustive description of the image.",
+    "Examine the image closely and relay its details.",
+    "Explain the contents of the given image with great attention to detail.",
+    "Characterize the image in a highly detailed manner.",
+    "Break down the components of the image in a comprehensive way.",
+    "Elaborate on the significant elements of the image.",
+    "Portray the image's contents with precision.",
+    "Illustrate the image with a rich, illustrative narrative."
+    "Depict the image using a detailed and vivid narrative.",
 ]
 
 update_detail_23k(
