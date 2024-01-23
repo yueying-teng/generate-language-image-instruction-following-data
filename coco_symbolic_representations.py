@@ -73,6 +73,21 @@ def process_instances_df(instances_df, instance_categories_df, images_info_df):
     return instances_df
 
 
+def gather_symbolic_rep_instruct_150k(instruct_150k_json_fps, df):
+
+    image = set()
+
+    for fp in instruct_150k_json_fps:
+        list_data_dict = json.load(open(fp, "r"))
+        image = image.union(
+            set([list_data_dict[i]["image"] for i in range(len(list_data_dict))])
+        )
+
+    df = df[df["image"].isin(image)]
+    df.to_pickle("symbolic_representation_instruct_150k.pkl")
+
+    df[df["bbox"].isnull()].to_pickle("instruct_150k_missing_bbox.pkl")
+
 if __name__ == "__main__":
     captions_paths = [
         "COCO2017/annotations/captions_train2017.json",
@@ -98,5 +113,12 @@ if __name__ == "__main__":
     # (123287, 122218)
     symbolic_rep_df = pd.merge(captions_df, instances_df, on="image", how="left")
     # 123287
-    symbolic_rep_df.to_pickle('symbolic_representation_coco_trainval_2017.pkl')
+    symbolic_rep_df.to_pickle("symbolic_representation_coco_trainval_2017.pkl")
 
+    # gather symbolic representations of images in LLaVA-Instruct-150K
+    instruct_150k_json_fps = [
+        "LLaVA-Instruct-150K/detail_23k.json",
+        "LLaVA-Instruct-150K/complex_reasoning_77k.json",
+        "LLaVA-Instruct-150K/conversation_58k.json",
+    ]
+    gather_symbolic_rep_instruct_150k(instruct_150k_json_fps, symbolic_rep_df)
