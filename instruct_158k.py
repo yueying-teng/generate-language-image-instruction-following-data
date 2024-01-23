@@ -41,7 +41,7 @@ def update_detail_23k(
     symbolic_rep_df,
     llm_chains,
     test_first_k=2,  # update the entire detail_23k data using float("-inf")
-    output_fp="updated_detail_23k.json",
+    output_fp="generated_data/detail_23k.json",
 ):
 
     list_data_dict = json.load(open(detail_23k_fp, "r"))
@@ -70,6 +70,7 @@ update_detail_23k(
     replacing_instructions=replacing_instructions,
     symbolic_rep_df=symbolic_rep_df,
     llm_chains=llm_chains,
+    output_fp="generated_data/detail_23k.json"
 )
 
 
@@ -95,7 +96,7 @@ def update_complex_77k(
     llm_chains,
     missing_bbox,
     test_first_k=2,  # update the entire complex_77k data using float("-inf")
-    output_fp="updated_complex_77k.json",
+    output_fp="generated_data/complex_reasoning_77k.json",
 ):
     list_data_dict = json.load(open(complex_77k_fp, "r"))
     # remove data_dict without coco bounding box annotations
@@ -124,7 +125,7 @@ update_complex_77k(
     symbolic_rep_df=symbolic_rep_df,
     llm_chains=llm_chains,
     test_first_k=2,  # update the entire complex_77k data using float("-inf")
-    output_fp="updated_complex_77k.json",
+    output_fp="generated_data/complex_reasoning_77k.json",
 )
 
 # %%
@@ -133,7 +134,7 @@ def update_conv_58k(
     symbolic_rep_df,
     llm_chains,
     test_first_k=2,  # update the entire conv_58k data using float("-inf")
-    output_fp="updated_conv_58k.json",
+    output_fp="generated_data/conversation_58k.json",
 ):
     list_data_dict = json.load(open(conv_58k_fp, "r"))
 
@@ -168,6 +169,6 @@ update_conv_58k(
     symbolic_rep_df=symbolic_rep_df,
     llm_chains=llm_chains,
     test_first_k=2,  # update the entire conv_58k data using float("-inf")
-    output_fp="updated_conv_58k.json",
+    output_fp="generated_data/conversation_58k.json",
 )
 

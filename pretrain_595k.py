@@ -34,9 +34,9 @@ def save_to_json(data, output_fp):
 
 # %%
 if __name__ == "__main__":
-    data_path = "../LLaVA-CC3M-Pretrain-595K/chat.json"
+    data_path = "LLaVA-CC3M-Pretrain-595K/chat.json"
     list_data_dict = json.load(open(data_path, "r"))
 
     list_data_dict = replace_instruction(list_data_dict, replacing_instructions, patterns)
 
-    save_to_json(list_data_dict, "../LLaVA-CC3M-Pretrain-595K/chat_instruction_replaced.json")
+    save_to_json(list_data_dict, "generate_data/chat.json")
