@@ -8,8 +8,8 @@ from pretrain_595k import replace_instruction, patterns, save_to_json
 from model_utils import get_llm_chains
 
 #%%
-symbolic_rep_df = pd.read_pickle("symbolic_representation_coco_trainval_2017.pkl")
-symbolic_rep_df.head()
+symbolic_rep_df = pd.read_pickle("symbolic_representation_instruct_150k.pkl")
+missing_bbox = pd.read_pickle("instruct_150k_missing_bbox.pkl")["image"]
 
 # %%
 model_path = "./models/mistral-7b-instruct-v0.1.Q4_0.gguf"
@@ -66,7 +66,7 @@ replacing_instructions = [
 ]
 
 update_detail_23k(
-    detail_23k_fp="../LLaVA-Instruct-150K/detail_23k.json",
+    detail_23k_fp="LLaVA-Instruct-150K/detail_23k.json",
     replacing_instructions=replacing_instructions,
     symbolic_rep_df=symbolic_rep_df,
     llm_chains=llm_chains,
@@ -74,14 +74,32 @@ update_detail_23k(
 
 
 # %%
+def remove_image_with_missing_bbox(list_data_dict, missing_bbox):
+    images = [list_data_dict[i]["image"] for i in range(len(list_data_dict))]
+    missing_bbox_indices = []
+    for i in range(len(missing_bbox)):
+        try:
+            missing_bbox_indices.append(images.index(missing_bbox.iloc[i]))
+        except ValueError:
+            continue
+
+    for i in missing_bbox_indices:
+        list_data_dict.pop(i)
+
+    return list_data_dict
+
+
 def update_complex_77k(
     complex_77k_fp,
     symbolic_rep_df,
     llm_chains,
+    missing_bbox,
     test_first_k=2,  # update the entire complex_77k data using float("-inf")
     output_fp="updated_complex_77k.json",
 ):
     list_data_dict = json.load(open(complex_77k_fp, "r"))
+    # remove data_dict without coco bounding box annotations
+    list_data_dict = remove_image_with_missing_bbox(list_data_dict, missing_bbox)
 
     for i in range(min(test_first_k, len(list_data_dict))):
         image = list_data_dict[i]["image"]
@@ -102,7 +120,7 @@ def update_complex_77k(
 
 # %%
 update_complex_77k(
-    complex_77k_fp="../LLaVA-Instruct-150K/complex_reasoning_77k.json",
+    complex_77k_fp="LLaVA-Instruct-150K/complex_reasoning_77k.json",
     symbolic_rep_df=symbolic_rep_df,
     llm_chains=llm_chains,
     test_first_k=2,  # update the entire complex_77k data using float("-inf")
@@ -140,14 +158,13 @@ def update_conv_58k(
                 a = section.split("Answer:")[-1].strip("\n").rstrip("\n").strip().rstrip()
                 qa_list.append({"from": "gpt", "value": a})
 
-
         list_data_dict[i]["conversations"] = qa_list
 
     save_to_json(list_data_dict, output_fp)
 
 # %%
 update_conv_58k(
-    conv_58k_fp="../LLaVA-Instruct-150K/conversation_58k.json",
+    conv_58k_fp="LLaVA-Instruct-150K/conversation_58k.json",
     symbolic_rep_df=symbolic_rep_df,
     llm_chains=llm_chains,
     test_first_k=2,  # update the entire conv_58k data using float("-inf")
