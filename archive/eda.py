@@ -1,25 +1,45 @@
 # %%
+import sys
+sys.path.append("../")
+
 import os
+import glob
 import json
+
 import pandas as pd
 
 from model_utils import read_file
 
 # %%
-detail_23k_fp="LLaVA-Instruct-150K/detail_23k.json"
-complex_77k_fp="LLaVA-Instruct-150K/complex_reasoning_77k.json"
-conv_58k_fp="LLaVA-Instruct-150K/conversation_58k.json"
+detail_23k_fp="../LLaVA-Instruct-150K/detail_23k.json"
+complex_77k_fp="../LLaVA-Instruct-150K/complex_reasoning_77k.json"
+conv_58k_fp="../LLaVA-Instruct-150K/conversation_58k.json"
 
-symbolic_rep_df = pd.read_pickle("symbolic_representation_instruct_150k.pkl")
-missing_bbox = pd.read_pickle("instruct_150k_missing_bbox.pkl")["image"]
+symbolic_rep_df = pd.read_pickle("../symbolic_representation_instruct_150k.pkl")
+missing_bbox = pd.read_pickle("../instruct_150k_missing_bbox.pkl")["image"]
 
-sys_msg_length = {}
-for prompt_dir in sorted(os.listdir("prompts")):
+# %%
+def get_prompt_msg_length(prompt_dir):
+    length = 0
+    cap_fps = glob.glob(f"{prompt_dir}/*_caps.txt")
+    conv_fps = glob.glob(f"{prompt_dir}/*_conv.txt")
+
+    sys_msg_path = f"{prompt_dir}/system_message.txt"
+    length += len(read_file(sys_msg_path).split(" "))
+
+    for cap_fp, conv_fp in zip(sorted(cap_fps), sorted(conv_fps)):
+        cap = read_file(cap_fp)
+        conv = read_file(conv_fp)
+        length += len(cap.split(" ")) + len(conv.split(" "))
+
+    return length
+
+# %%
+prompt_length = {}
+for prompt_dir in sorted(os.listdir("../prompts")):
     # detail_description, complex_reasoning, conversation
     if prompt_dir != ".DS_Store":
-        sys_msg_path = f"./prompts/{prompt_dir}/system_message.txt"
-        sys_msg_length[prompt_dir] = len(read_file(sys_msg_path).split(" "))
-
+        prompt_length[prompt_dir] = get_prompt_msg_length(os.path.join("../prompts", prompt_dir))
 
 # %%
 def get_ctx_length_stats(
@@ -27,6 +47,7 @@ def get_ctx_length_stats(
     symbolic_rep_df,
     missing_bbox,
     json_type,
+    prompt_length,
 ):
 
     image = [list_data_dict[i]["image"] for i in range(len(list_data_dict))]
@@ -42,7 +63,7 @@ def get_ctx_length_stats(
         human_input = symbolic_rep_df["caption"]
 
     ctx_length = human_input.apply(
-        lambda row: len(row.split(" ")) + sys_msg_length[json_type]
+        lambda row: len(row.split(" ")) + prompt_length[json_type]
         )
 
     return ctx_length
@@ -79,6 +100,7 @@ def get_length_stats(
     json_fp,
     symbolic_rep_df,
     missing_bbox,
+    prompt_length,
     json_type,
 ):
     print(json_fp)
@@ -90,6 +112,7 @@ def get_length_stats(
         symbolic_rep_df,
         missing_bbox,
         json_type,
+        prompt_length,
         )
 
     print("Assistant output length stats")
@@ -103,6 +126,7 @@ get_length_stats(
     json_fp=detail_23k_fp,
     symbolic_rep_df=symbolic_rep_df,
     missing_bbox=missing_bbox,
+    prompt_length=prompt_length,
     json_type="detail_description",
 )
 
@@ -118,19 +142,20 @@ min       45.000000
 max      205.000000
                   0
 count  23240.000000
-mean     280.509036
+mean     960.509036
 std       31.074869
-min      236.000000
-25%      259.000000
-50%      273.000000
-75%      294.000000
-max      596.000000
+min      916.000000
+25%      939.000000
+50%      953.000000
+75%      974.000000
+max     1276.000000
 """
 # %%
 get_length_stats(
     json_fp=complex_77k_fp,
     symbolic_rep_df=symbolic_rep_df,
     missing_bbox=missing_bbox,
+    prompt_length=prompt_length,
     json_type="complex_reasoning",
 )
 """
@@ -146,13 +171,13 @@ max      348.000000
 Context length stats
                   0
 count  76276.000000
-mean     320.805535
+mean     895.805535
 std       31.055056
-min      282.000000
-25%      299.000000
-50%      310.000000
-75%      333.000000
-max      675.000000
+min      857.000000
+25%      874.000000
+50%      885.000000
+75%      908.000000
+max     1250.000000
 """
 
 # %%
@@ -160,6 +185,7 @@ get_length_stats(
     json_fp=conv_58k_fp,
     symbolic_rep_df=symbolic_rep_df,
     missing_bbox=missing_bbox,
+    prompt_length=prompt_length,
     json_type="conversation",
 )
 
@@ -175,12 +201,11 @@ min        9.000000
 max      708.000000
                   0
 count  56681.000000
-mean     267.147474
+mean    1178.147474
 std        6.264194
-min      254.000000
-25%      263.000000
-50%      266.000000
-75%      270.000000
-max      436.000000
+min     1165.000000
+25%     1174.000000
+50%     1177.000000
+75%     1181.000000
+max     1347.000000
 """
-
