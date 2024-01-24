@@ -36,7 +36,7 @@ def post_process_detail_23k(
 
     for i in range(len(list_data_dict)):
         image = list_data_dict[i]["image"]
-        response = raw_resp_df[raw_resp_df["image"] == image]["responses"].iloc[0]
+        response = raw_resp_df[raw_resp_df["image"] == image]["response"].iloc[0]
 
         list_data_dict[i]["conversations"][1]["value"] = response.split("AI:")[-1].strip().rstrip()
 

@@ -12,11 +12,11 @@ missing_bbox = pd.read_pickle("instruct_150k_missing_bbox.pkl")["image"]
 
 llm = LlamaCpp(
         model_path="./models/mistral-7b-instruct-v0.1.Q5_K_M.gguf",
-        temperature=0.69,
-        repeat_penalty=1.2,
-        top_p=0.99, #  0.98,
+        temperature=0.7,
+        repeat_penalty=1.1,
+        top_p=1., #  0.98,
         top_k=40, # 50
-        max_tokens=780,
+        max_tokens=260,
         seed=2023,
         n_gpu_layers=33,  # "Number of layers to be loaded into gpu memory
         n_batch=4096, # Number of tokens to process in parallel. Should be a number between 1 and n_ctx
@@ -55,11 +55,15 @@ def batch_predict(
     batch_images = images[cur_i: cur_i + batch_size]
     symbolic_rep = symbolic_rep_df[symbolic_rep_df["image"].isin(batch_images)]
 
-    batch_data = [{"input": h} for h in symbolic_rep["human_input"]]
+    batch_data = [
+        {"input": h} for h in
+        [symbolic_rep[symbolic_rep["image"] == img]["human_input"].iloc[0]
+         for img in batch_images]
+        ]
 
     responses = llm_chains[resp_type].batch(
         batch_data,
-        config={"max_concurrency": max_concurrency}  # set the number of concurrent requests by using the max_concurrency parameter
+        # config={"max_concurrency": max_concurrency},
     )
 
     return responses
@@ -99,7 +103,7 @@ def update_finetuning_data(
     else:
         symbolic_rep_df["human_input"] = symbolic_rep_df["caption"]
 
-    images = [list_data_dict[i]["image"] for i in range(size)]
+    images = [list_data_dict[i]["image"] for i in range(size)][:size]
     responses = []
 
     i = 0
@@ -127,7 +131,7 @@ def update_finetuning_data(
                 resp_type,
             )
 
-    df = pd.DataFrame({"image": images, "responses": responses})
+    df = pd.DataFrame({"image": images, "response": responses})
     df.to_pickle(output_fp)
 
 
@@ -137,14 +141,14 @@ update_finetuning_data(
     resp_type="detail_description",
     symbolic_rep_df=symbolic_rep_df,
     llm_chains=llm_chains,
-    batch_size=4,
-    max_concurrency=2,
+    batch_size=1,
+    max_concurrency=1,
     test_first_k=2,  # update all data with sys.maxsize
     output_fp="generated_data/raw_detail_23k.pkl",
+    missing_bbox=missing_bbox,
 )
 
 # %%
-
 update_finetuning_data(
     json_fp="LLaVA-Instruct-150K/complex_reasoning_77k.json",
     resp_type="complex_reasoning",
@@ -154,6 +158,7 @@ update_finetuning_data(
     max_concurrency=2,
     test_first_k=2,  # update all data with sys.maxsize
     output_fp="generated_data/raw_complex_reasoning_77k.pkl",
+    missing_bbox=missing_bbox,
 )
 
 # %%
@@ -166,4 +171,5 @@ update_finetuning_data(
     max_concurrency=2,
     test_first_k=2,  # update all data with sys.maxsize
     output_fp="generated_data/raw_conversation_58k.pkl",
+    missing_bbox=missing_bbox,
 )

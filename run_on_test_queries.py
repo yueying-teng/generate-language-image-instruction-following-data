@@ -32,7 +32,7 @@ final_prompts = {}
 for prompt_dir in sorted(os.listdir("prompts")):
     # detail_description, complex_reasoning, conversation
     if prompt_dir != ".DS_Store":
-        final_prompts[prompt_dir] = get_prompt(prompt_dir)
+        final_prompts[prompt_dir] = get_prompt(os.path.join("prompts", prompt_dir))
 
 llm_chains = get_llm_chains(llm)
 # %%
