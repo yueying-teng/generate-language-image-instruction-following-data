@@ -141,8 +141,8 @@ update_finetuning_data(
     resp_type="detail_description",
     symbolic_rep_df=symbolic_rep_df,
     llm_chains=llm_chains,
-    batch_size=1,
-    max_concurrency=1,
+    batch_size=2,
+    max_concurrency=4,
     test_first_k=2,  # update all data with sys.maxsize
     output_fp="generated_data/raw_detail_23k.pkl",
     missing_bbox=missing_bbox,
@@ -156,7 +156,7 @@ update_finetuning_data(
     llm_chains=llm_chains,
     batch_size=4,
     max_concurrency=2,
-    test_first_k=2,  # update all data with sys.maxsize
+    test_first_k=4,  # update all data with sys.maxsize
     output_fp="generated_data/raw_complex_reasoning_77k.pkl",
     missing_bbox=missing_bbox,
 )
@@ -169,7 +169,7 @@ update_finetuning_data(
     llm_chains=llm_chains,
     batch_size=4,
     max_concurrency=2,
-    test_first_k=2,  # update all data with sys.maxsize
+    test_first_k=4,  # update all data with sys.maxsize
     output_fp="generated_data/raw_conversation_58k.pkl",
     missing_bbox=missing_bbox,
 )
