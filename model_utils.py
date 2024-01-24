@@ -12,10 +12,10 @@ def read_file(fp):
 
 
 def get_prompt(prompt_dir):
-    cap_fps = glob.glob(f"./prompts/{prompt_dir}/*_caps.txt")
-    conv_fps = glob.glob(f"./prompts/{prompt_dir}/*_conv.txt")
+    cap_fps = glob.glob(f"{prompt_dir}/*_caps.txt")
+    conv_fps = glob.glob(f"{prompt_dir}/*_conv.txt")
 
-    sys_msg_path = f"./prompts/{prompt_dir}/system_message.txt"
+    sys_msg_path = f"{prompt_dir}/system_message.txt"
     sys_msg = read_file(sys_msg_path)
 
     examples = []
@@ -53,7 +53,7 @@ def get_llm_chains(llm):
     for prompt_dir in sorted(os.listdir("prompts")):
         # detail_description, complex_reasoning, conversation
         if prompt_dir != ".DS_Store":
-            final_prompts[prompt_dir] = get_prompt(prompt_dir)
+            final_prompts[prompt_dir] = get_prompt(os.path.join("prompts", prompt_dir))
 
     llm_chains = {}
     for resp_type, prompt in final_prompts.items():
