@@ -47,7 +47,7 @@ post_process_detail_23k(
     json_fp="LLaVA-Instruct-150K/detail_23k.json",
     raw_resp_fp="generated_data/raw_detail_23k.pkl",
     replacing_instructions=replacing_instructions_detailed,
-    output_fp="generated_data/updated_detail_23k.json",
+    output_fp="generated_data/detail_23k.json",
 )
 
 
@@ -81,7 +81,7 @@ def post_process_complex_77k(
 post_process_complex_77k(
     json_fp="LLaVA-Instruct-150K/complex_reasoning_77k.json",
     raw_resp_fp="generated_data/raw_complex_reasoning_77k.pkl",
-    output_fp="generated_data/updated_complex_reasoning_77k.json",
+    output_fp="generated_data/complex_reasoning_77k.json",
     missing_bbox=missing_bbox,
 )
 # %%
@@ -118,5 +118,5 @@ def post_process_conv_58k(
 post_process_conv_58k(
     json_fp="LLaVA-Instruct-150K/conversation_58k.json",
     raw_resp_fp="generated_data/raw_conversation_58k.pkl",
-    output_fp="generated_data/updated_conversation_58k.json",
+    output_fp="generated_data/conversation_58k.json",
 )
