@@ -7,14 +7,12 @@ from langchain.llms import LlamaCpp
 from model_utils import get_llm_chains, get_prompt, read_file
 
 
-model_path = "./models/mistral-7b-instruct-v0.1.Q4_0.gguf"
-
 # initialize LlamaCpp LLM model
 # n_gpu_layers, n_batch, and n_ctx are for GPU support.
 # When not set, CPU will be used.
 # set 1 for Mac m2, and higher numbers based on your GPU support
 llm = LlamaCpp(
-        model_path=model_path,
+        model_path="./models/mistral-7b-instruct-v0.1.Q5_K_M.gguf",
         temperature=0.7,
         repeat_penalty=1.2,
         top_p=1.,
