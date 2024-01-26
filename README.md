@@ -145,6 +145,9 @@ pip install llama-cpp-python==0.2.31 --force-reinstall --upgrade --no-cache-dir
 4. Run `pretrain_595k.py` to replace the original instructions in [LLaVA-CC3M-Pretrain-595K](https://huggingface.co/datasets/liuhaotian/LLaVA-CC3M-Pretrain-595K/blob/main/chat.json) with the ones from the `replacing_instructions_brief` list [here](data_utils.py). Results will be saved as `generated_data/chat.json`, which has the same format as the original `chat.json`.
 
 5. Recreate the three types of instruction following data, `detailed description`, `complex reasoning` and `conversation`, in LLaVA-Instruct-150K using Mistral instruct 7B.
+    ```bash
+    nohup python -u instruct_158k.py > instruct_158k.out &
+    ```
     1. Run [instruct_158k.py](instruct_158k.py)
     2. The generated raw data is saved in
         - `generated_data/raw_detail_23k.pkl`
@@ -154,7 +157,6 @@ pip install llama-cpp-python==0.2.31 --force-reinstall --upgrade --no-cache-dir
         - `generated_data/complex_reasoning_77k.json`
         - `generated_data/conversation_58k.json`
         - `generated_data/detail_23k.json`
-
 
 ### Generated data
 For this image [COCO_train2014_000000443336.jpg](https://knowyourdata-tfds.withgoogle.com/#dataset=coco_captions&tab=ITEM&select=default_segment.coco_captions.captions_text.value&draw=default_segment.coco_captions.objects_label.value,bbox,bbox&auto_draw=false&item=COCO_train2014_000000443336.jpg), results from running [run_on_test_queries.py](run_on_test_queries.py).
