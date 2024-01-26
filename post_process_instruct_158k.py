@@ -1,6 +1,5 @@
 # %%
 import json
-import sys
 import pandas as pd
 
 from pretrain_595k import replace_instruction, patterns, save_to_json
@@ -49,7 +48,6 @@ post_process_detail_23k(
     replacing_instructions=replacing_instructions_detailed,
     output_fp="generated_data/detail_23k.json",
 )
-
 
 # %%
 def post_process_complex_77k(
