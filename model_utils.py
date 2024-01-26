@@ -48,12 +48,18 @@ def get_prompt(prompt_dir):
     return final_prompt
 
 
-def get_llm_chains(llm):
+def get_all_prompts(prompt_dir):
     final_prompts = {}
-    for prompt_dir in sorted(os.listdir("prompts")):
+    for dir_name in sorted(os.listdir(prompt_dir)):
         # detail_description, complex_reasoning, conversation
-        if prompt_dir != ".DS_Store":
-            final_prompts[prompt_dir] = get_prompt(os.path.join("prompts", prompt_dir))
+        if dir_name != ".DS_Store":
+            final_prompts[dir_name] = get_prompt(os.path.join(prompt_dir, dir_name))
+
+    return final_prompts
+
+
+def get_llm_chains(llm, prompt_dir="prompts"):
+    final_prompts = get_all_prompts(prompt_dir)
 
     llm_chains = {}
     for resp_type, prompt in final_prompts.items():
