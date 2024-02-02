@@ -1,7 +1,7 @@
 # Generate language-image instruction-following data
 
 **Mistral assisted visual instruction data generation**
-(with Langchain + LLama.cpp)
+(with Langchain + llama-cpp-python + gguf)
 
 >Follows Chapter 3. GPT-assisted Visual Instruction Data Generation from the [LLaVa paper](https://arxiv.org/pdf/2304.08485.pdf).
 
@@ -91,6 +91,44 @@ mirror: [0.371, 0.623, 0.789, 0.632
 </details>
 
 
+### Project structure
+```
+generate-language-image-instruction-following-data
+├─ COCO2017               <-- COCO2017 annotation data will be downloaded here
+├─ models                 <-- mistral 7B instruct model will be downloaded here
+├─ generated_data         <-- generated raw & post processed instruction following data will be stored here
+├─ coco_symbolic_representations.py   <-- run this to create symbolic representations for prompting LLMs
+├─ data_utils.py
+├─ instruct_158k.py                   <-- run this to generate raw instruction following data
+├─ instruct_158k_with_batching.py     <-- batch prediction is not supported by langchain.llms.LlamaCpp yet
+├─ model_utils.py
+├─ post_process_instruct_158k.py      <-- run this to recreate LLaVA-Instruct-150K using the generated raw data
+├─ pretrain_595k.py                   <-- run this to replace the instructions in the original LLaVA-CC3M-Pretrain-595K
+├─ prompts                            <-- manually designed seed examples from LLaVA's official repo,
+│  ├─ complex_reasoning                   which are used to prompt mistral 7B to generate instruction
+│  │  ├─ ...txt                           following data in this repo
+│  │  └─ system_message.txt
+│  ├─ conversation
+│  │  ├─ ...txt
+│  │  └─ system_message.txt
+│  └─ detail_description
+│     ├─ ...txt
+│     └─ system_message.txt
+├─ requirements.cpu.txt
+├─ requirements.gpu.txt
+├─ run_on_test_queries.py            <-- run this to generate the three types of instruction following
+├─ archive                               data for COCO image 000000443336.jpg
+│  └─ eda.py
+└─ test_queries                      <-- symbolic representations of COCO image 000000443336.jpg
+   ├─ complex_reasoning
+   │  └─ 000_caps.txt
+   ├─ conversation
+   │  └─ 000_caps.txt
+   └─ detail_description
+      └─ 000_caps.txt
+```
+
+
 ### Steps
 
 1. download the data and gguf model
@@ -144,16 +182,16 @@ pip install llama-cpp-python==0.2.31 --force-reinstall --upgrade --no-cache-dir
 
 4. Run `pretrain_595k.py` to replace the original instructions in [LLaVA-CC3M-Pretrain-595K](https://huggingface.co/datasets/liuhaotian/LLaVA-CC3M-Pretrain-595K/blob/main/chat.json) with the ones from the `replacing_instructions_brief` list [here](data_utils.py). Results will be saved as `generated_data/chat.json`, which has the same format as the original `chat.json`.
 
-5. Recreate the three types of instruction following data, `detailed description`, `complex reasoning` and `conversation`, in LLaVA-Instruct-150K using Mistral instruct 7B.
+5. Recreate the three types of instruction following data, `detailed description`, `complex reasoning` and `conversation`, in `LLaVA-Instruct-150K` using Mistral instruct 7B.
     ```bash
     nohup python -u instruct_158k.py > instruct_158k.out &
     ```
-    1. Run [instruct_158k.py](instruct_158k.py)
+    1. Run [instruct_158k.py](instruct_158k.py) to created raw instruction following data
     2. The generated raw data is saved in
         - `generated_data/raw_detail_23k.pkl`
         - `generated_data/raw_complex_reasoning_77k.pkl`
         - `generated_data/raw_conversation_58k.pkl` respectively.
-    3. Then run `post_process_instruct_158k.py` to parse the generated text and recreate the data, which have the same format as those in [LLaVA-Instruct-150K](https://huggingface.co/datasets/liuhaotian/LLaVA-Instruct-150K), and will be saved in
+    3. Then run `post_process_instruct_158k.py` to parse the generated text and recreate the LLaVA training data, which share the same format as those in [LLaVA-Instruct-150K](https://huggingface.co/datasets/liuhaotian/LLaVA-Instruct-150K), and will be saved in
         - `generated_data/complex_reasoning_77k.json`
         - `generated_data/conversation_58k.json`
         - `generated_data/detail_23k.json`
