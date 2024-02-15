@@ -138,6 +138,8 @@ generate-language-image-instruction-following-data
     cd models
 
     wget https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q5_K_M.gguf
+
+    wget https://huggingface.co/TheBloke/Mixtral-8x7B-Instruct-v0.1-GGUF/resolve/main/mixtral-8x7b-instruct-v0.1.Q5_K_M.gguf
     ```
 
     `COCO 2017`
@@ -175,7 +177,8 @@ pip install -r requirements.gpu.txt
 
 export CMAKE_ARGS=-DLLAMA_CUBLAS=on
 export FORCE_CMAKE=1
-pip install llama-cpp-python==0.2.31 --force-reinstall --upgrade --no-cache-dir
+pip install llama_cpp_python==0.2.43 --force-reinstall --upgrade --no-cache-dir
+# Use --verbose for extra assurance that cuBLAS is being used in compilation.
 ```
 
 3. install `Jupyter` extension first in VS Code, then run `run_on_test_queries.py` interactively using `shift + return`.
