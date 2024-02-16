@@ -1,10 +1,11 @@
 # %%
 import json
 import sys
+from datetime import datetime
 import pandas as pd
-from langchain.llms import LlamaCpp
+from llama_cpp import Llama
 
-from model_utils import get_all_prompts
+from model_utils import SAMPLING_CONFIG, get_all_prompts
 
 # %%
 def remove_image_with_missing_bbox(list_data_dict, missing_bbox):
@@ -22,35 +23,35 @@ def remove_image_with_missing_bbox(list_data_dict, missing_bbox):
     return list_data_dict
 
 # %%
-def get_llm(resp_type, model_path, max_tokens):
-
-    llm = LlamaCpp(
-        model_path=model_path,
-        temperature=0.69,
-        repeat_penalty=1.24,
-        top_p=0.98, #  0.98,
-        top_k=90, # 50
-        max_tokens=max_tokens[resp_type], #260 detail_description, 350 for coomples_reasoning, 710 for conv
-        seed=2023,
-        n_gpu_layers=33,  # "Number of layers to be loaded into gpu memory
-        n_batch=4200, # Number of tokens to process in parallel. Should be a number between 1 and n_ctx
-        n_ctx=6200,  # Token context window
-        verbose=False,
+def complete(human_input, prompts, sampling_config):
+    llm.reset()
+    resp = llm.create_chat_completion(
+            messages = prompts + [
+                {
+                    "role": "user",
+                    "content": human_input,
+                },
+            ],
+            temperature=sampling_config["temperature"],
+            repeat_penalty=sampling_config["repeat_penalty"],
+            top_p=sampling_config["top_p"],
+            top_k=sampling_config["top_k"],
+            max_tokens=sampling_config["max_tokens"],
+            seed=2023,
         )
 
-    return llm
+    return resp["choices"][0]["message"]["content"]
 
 # %%
 def update_finetuning_data(
+    llm,
     json_fp,
     resp_type,
     symbolic_rep_df,
     test_first_k,  # update all the data using test_first_k
     output_fp,
     missing_bbox,
-    max_tokens,
     final_prompts,
-    model_path="./models/mistral-7b-instruct-v0.1.Q5_K_M.gguf",
 ):
     assert resp_type in [
         "complex_reasoning", "detail_description", "conversation"
@@ -59,9 +60,6 @@ def update_finetuning_data(
 
     with open(json_fp) as f:
         list_data_dict = json.load(f)
-
-    llm = get_llm(resp_type, model_path, max_tokens)
-    llm_chain = final_prompts[resp_type] | llm  # LCEL
 
     if resp_type == "complex_reasoning":
         # remove data_dict without coco bounding box annotations
@@ -83,7 +81,11 @@ def update_finetuning_data(
     for img in images:
         print(img)
         human_input = symbolic_rep_df[symbolic_rep_df["image"] == img].iloc[0]["human_input"]
-        res = llm_chain.invoke({"input": human_input})
+        res = complete(
+            human_input,
+            final_prompts[resp_type],
+            SAMPLING_CONFIG[resp_type],
+            )
         print(res)
         print("\n")
         responses.append(res)
@@ -96,52 +98,53 @@ if __name__ == "__main__":
     symbolic_rep_df = pd.read_pickle("symbolic_rep_data/symbolic_representation_instruct_150k.pkl")
     missing_bbox = pd.read_pickle("symbolic_rep_data/instruct_150k_missing_bbox.pkl")["image"]
 
-    max_tokens = {
-        "complex_reasoning": 350,
-        "conversation": 710,
-        "detail_description": 260,
-    }
+    llm = Llama(
+        model_path="./models/mixtral-8x7b-instruct-v0.1.Q5_K_M.gguf",
+        n_batch=6200, # Number of tokens to process in parallel. Should be a number between 1 and n_ctx
+        n_ctx=6200,
+        n_gpu_layers=33,
+        chat_format="llama-2",
+        verbose=False,
+    )
 
     final_prompts = get_all_prompts("prompts")
-    test_first_k = 5
+    # test_first_k = sys.maxsize
+    test_first_k = 2
 
     print("running detailed description")
     update_finetuning_data(
+        llm,
         json_fp="LLaVA-Instruct-150K/detail_23k.json",
         resp_type="detail_description",
         symbolic_rep_df=symbolic_rep_df,
         test_first_k=test_first_k,
-        output_fp="generated_data/raw_detail_23k.pkl",
+        output_fp=f"generated_data/raw_detail_23k_{datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}.pkl",
         missing_bbox=missing_bbox,
-        max_tokens=max_tokens,
         final_prompts=final_prompts,
-        model_path="./models/mistral-7b-instruct-v0.1.Q5_K_M.gguf",
     )
 
     # %%
     print("running complex reasoning")
     update_finetuning_data(
+        llm,
         json_fp="LLaVA-Instruct-150K/complex_reasoning_77k.json",
         resp_type="complex_reasoning",
         symbolic_rep_df=symbolic_rep_df,
         test_first_k=test_first_k,
-        output_fp="generated_data/raw_complex_reasoning_77k.pkl",
+        output_fp=f"generated_data/raw_complex_reasoning_77k_{datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}.pkl",
         missing_bbox=missing_bbox,
-        max_tokens=max_tokens,
         final_prompts=final_prompts,
-        model_path="./models/mistral-7b-instruct-v0.1.Q5_K_M.gguf",
     )
 
     # %%
     print("running conversation")
     update_finetuning_data(
+        llm,
         json_fp="LLaVA-Instruct-150K/conversation_58k.json",
         resp_type="conversation",
         symbolic_rep_df=symbolic_rep_df,
         test_first_k=test_first_k,
-        output_fp="generated_data/raw_conversation_58k.pkl",
+        output_fp=f"generated_data/raw_conversation_58k_{datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}.pkl",
         missing_bbox=missing_bbox,
-        max_tokens=max_tokens,
         final_prompts=final_prompts,
-        model_path="./models/mistral-7b-instruct-v0.1.Q5_K_M.gguf",
     )

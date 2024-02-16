@@ -2,6 +2,31 @@ import os
 import glob
 
 
+SAMPLING_CONFIG = {
+    "complex_reasoning": {
+        "temperature": 1.7,
+        "repeat_penalty": 1.2,
+        "top_p": 0.6,
+        "top_k": 40,
+        "max_tokens": 340,
+    },
+    "detail_description": {
+        "temperature": 1.7,
+        "repeat_penalty": 1.25,
+        "top_p": 0.6,
+        "top_k": 40,
+        "max_tokens": 200,
+    },
+    "conversation": {
+        "temperature": 1.7,
+        "repeat_penalty": 1.25,
+        "top_p": 0.5,
+        "top_k": 40,
+        "max_tokens": 710,
+    },
+}
+
+
 def read_file(fp):
     with open(fp, "r") as file:
         result = file.read()
@@ -16,14 +41,14 @@ def get_prompt(prompt_dir):
     sys_msg_path = f"{prompt_dir}/system_message.txt"
     sys_msg = read_file(sys_msg_path)
 
-    messages = [{"role": "system", "content": sys_msg}]
+    prompts = [{"role": "system", "content": sys_msg}]
     for cap_fp, conv_fp in zip(sorted(cap_fps), sorted(conv_fps)):
         cap = read_file(cap_fp)
         conv = read_file(conv_fp)
-        messages.append({"role": "user", "content": cap})
-        messages.append({"role": "assistant", "content": conv})
+        prompts.append({"role": "user", "content": cap})
+        prompts.append({"role": "assistant", "content": conv})
 
-    return messages
+    return prompts
 
 
 def get_all_prompts(prompt_dir):
