@@ -8,7 +8,7 @@ from data_utils import replacing_instructions_detailed
 
 #%%
 detail_23k_raw_resp_fp = "generated_data/raw_detail_23k.pkl"
-missing_bbox = pd.read_pickle("instruct_150k_missing_bbox.pkl")["image"]
+missing_bbox = pd.read_pickle("symbolic_rep_data/instruct_150k_missing_bbox.pkl")["image"]
 
 # %%
 def load_post_processing_data(

@@ -93,8 +93,8 @@ def update_finetuning_data(
 
 # %%
 if __name__ == "__main__":
-    symbolic_rep_df = pd.read_pickle("symbolic_representation_instruct_150k.pkl")
-    missing_bbox = pd.read_pickle("instruct_150k_missing_bbox.pkl")["image"]
+    symbolic_rep_df = pd.read_pickle("symbolic_rep_data/symbolic_representation_instruct_150k.pkl")
+    missing_bbox = pd.read_pickle("symbolic_rep_data/instruct_150k_missing_bbox.pkl")["image"]
 
     max_tokens = {
         "complex_reasoning": 350,
