@@ -1,4 +1,5 @@
 # %%
+import csv
 import json
 import sys
 from datetime import datetime
@@ -43,6 +44,32 @@ def complete(human_input, prompts, sampling_config):
     return resp["choices"][0]["message"]["content"]
 
 # %%
+def predict_and_save(list_data_dict, test_first_k, resp_type, starting_img, output_fp):
+
+    size = min(len(list_data_dict), test_first_k)
+    images = [list_data_dict[i]["image"] for i in range(size)][:size]
+
+    starting_img_idx = images.index(starting_img) if starting_img != -1 else 0
+
+    with open(output_fp, "w", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(["image", "response"])
+
+        for img in images[starting_img_idx:]:
+            row = [img]
+            print(img)
+            human_input = symbolic_rep_df[symbolic_rep_df["image"] == img].iloc[0]["human_input"]
+            res = complete(
+                human_input,
+                final_prompts[resp_type],
+                SAMPLING_CONFIG[resp_type],
+                )
+            print(res)
+            print("\n")
+            row.append(res)
+            writer.writerow(row)
+
+# %%
 def update_finetuning_data(
     llm,
     json_fp,
@@ -52,6 +79,7 @@ def update_finetuning_data(
     output_fp,
     missing_bbox,
     final_prompts,
+    starting_img=-1,
 ):
     assert resp_type in [
         "complex_reasoning", "detail_description", "conversation"
@@ -75,23 +103,7 @@ def update_finetuning_data(
     else:
         symbolic_rep_df["human_input"] = symbolic_rep_df["caption"]
 
-    images = [list_data_dict[i]["image"] for i in range(size)][:size]
-    responses = []
-
-    for img in images:
-        print(img)
-        human_input = symbolic_rep_df[symbolic_rep_df["image"] == img].iloc[0]["human_input"]
-        res = complete(
-            human_input,
-            final_prompts[resp_type],
-            SAMPLING_CONFIG[resp_type],
-            )
-        print(res)
-        print("\n")
-        responses.append(res)
-
-    df = pd.DataFrame({"image": images, "response": responses})
-    df.to_pickle(output_fp)
+    predict_and_save(list_data_dict, test_first_k, resp_type, starting_img, output_fp)
 
 # %%
 if __name__ == "__main__":
@@ -108,8 +120,8 @@ if __name__ == "__main__":
     )
 
     final_prompts = get_all_prompts("prompts")
-    # test_first_k = sys.maxsize
-    test_first_k = 2
+    test_first_k = sys.maxsize
+    # test_first_k = 5
 
     print("running detailed description")
     update_finetuning_data(
@@ -118,7 +130,7 @@ if __name__ == "__main__":
         resp_type="detail_description",
         symbolic_rep_df=symbolic_rep_df,
         test_first_k=test_first_k,
-        output_fp=f"generated_data/raw_detail_23k_{datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}.pkl",
+        output_fp=f"generated_data/raw_detail_23k_{datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}.csv",
         missing_bbox=missing_bbox,
         final_prompts=final_prompts,
     )
@@ -131,12 +143,12 @@ if __name__ == "__main__":
         resp_type="complex_reasoning",
         symbolic_rep_df=symbolic_rep_df,
         test_first_k=test_first_k,
-        output_fp=f"generated_data/raw_complex_reasoning_77k_{datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}.pkl",
+        output_fp=f"generated_data/raw_complex_reasoning_77k_{datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}.csv",
         missing_bbox=missing_bbox,
         final_prompts=final_prompts,
     )
 
-    # %%
+    # # %%
     print("running conversation")
     update_finetuning_data(
         llm,
@@ -144,7 +156,7 @@ if __name__ == "__main__":
         resp_type="conversation",
         symbolic_rep_df=symbolic_rep_df,
         test_first_k=test_first_k,
-        output_fp=f"generated_data/raw_conversation_58k_{datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}.pkl",
+        output_fp=f"generated_data/raw_conversation_58k_{datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}.csv",
         missing_bbox=missing_bbox,
         final_prompts=final_prompts,
     )
