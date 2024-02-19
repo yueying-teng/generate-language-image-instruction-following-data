@@ -11,10 +11,10 @@ SAMPLING_CONFIG = {
         "max_tokens": 340,
     },
     "detail_description": {
-        "temperature": 1.7,
-        "repeat_penalty": 1.25,
-        "top_p": 0.6,
-        "top_k": 40,
+        "temperature": 1.5,
+        "repeat_penalty": 1.2,
+        "top_p": 0.59,
+        "top_k": 50,
         "max_tokens": 200,
     },
     "conversation": {
