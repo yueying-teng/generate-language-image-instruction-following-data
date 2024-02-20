@@ -41,11 +41,14 @@ def get_prompt(prompt_dir):
     sys_msg_path = f"{prompt_dir}/system_message.txt"
     sys_msg = read_file(sys_msg_path)
 
-    prompts = [{"role": "system", "content": sys_msg}]
-    for cap_fp, conv_fp in zip(sorted(cap_fps), sorted(conv_fps)):
+    prompts = []
+    for i, (cap_fp, conv_fp) in enumerate(zip(sorted(cap_fps), sorted(conv_fps))):
         cap = read_file(cap_fp)
         conv = read_file(conv_fp)
-        prompts.append({"role": "user", "content": cap})
+        if i == 0:
+            prompts.append({"role": "user", "content": sys_msg + "" + cap})
+        else:
+            prompts.append({"role": "user", "content": cap})
         prompts.append({"role": "assistant", "content": conv})
 
     return prompts
