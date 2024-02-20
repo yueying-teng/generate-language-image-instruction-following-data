@@ -4,10 +4,10 @@ import glob
 
 SAMPLING_CONFIG = {
     "complex_reasoning": {
-        "temperature": 1.6,
+        "temperature": 1.55,
         "repeat_penalty": 1.25,
-        "top_p": 0.7,
-        "top_k": 45,
+        "top_p": 0.58,
+        "top_k": 35,
         "max_tokens": 340,
     },
     "detail_description": {
