@@ -115,13 +115,12 @@ if __name__ == "__main__":
         n_batch=6200, # Number of tokens to process in parallel. Should be a number between 1 and n_ctx
         n_ctx=6200,
         n_gpu_layers=33,
-        chat_format="llama-2",
+        chat_format="mistral-instruct",
         verbose=False,
     )
 
     final_prompts = get_all_prompts("prompts")
     test_first_k = sys.maxsize
-    # test_first_k = 5
 
     print("running detailed description")
     update_finetuning_data(
@@ -148,7 +147,7 @@ if __name__ == "__main__":
         final_prompts=final_prompts,
     )
 
-    # # %%
+    # %%
     print("running conversation")
     update_finetuning_data(
         llm,
