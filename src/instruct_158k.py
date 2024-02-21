@@ -24,7 +24,7 @@ def remove_image_with_missing_bbox(list_data_dict, missing_bbox):
     return list_data_dict
 
 # %%
-def complete(human_input, prompts, sampling_config):
+def complete(llm, human_input, prompts, sampling_config):
     llm.reset()
     resp = llm.create_chat_completion(
             messages = prompts + [
@@ -44,7 +44,16 @@ def complete(human_input, prompts, sampling_config):
     return resp["choices"][0]["message"]["content"]
 
 # %%
-def predict_and_save(list_data_dict, test_first_k, resp_type, starting_img, output_fp):
+def predict_and_save(
+    llm,
+    list_data_dict,
+    symbolic_rep_df,
+    final_prompts,
+    test_first_k,
+    resp_type,
+    starting_img,
+    output_fp,
+    ):
 
     size = min(len(list_data_dict), test_first_k)
     images = [list_data_dict[i]["image"] for i in range(size)][:size]
@@ -60,6 +69,7 @@ def predict_and_save(list_data_dict, test_first_k, resp_type, starting_img, outp
             print(img)
             human_input = symbolic_rep_df[symbolic_rep_df["image"] == img].iloc[0]["human_input"]
             res = complete(
+                llm,
                 human_input,
                 final_prompts[resp_type],
                 SAMPLING_CONFIG[resp_type],
@@ -75,7 +85,7 @@ def update_finetuning_data(
     json_fp,
     resp_type,
     symbolic_rep_df,
-    test_first_k,  # update all the data using test_first_k
+    test_first_k,
     output_fp,
     missing_bbox,
     final_prompts,
@@ -93,8 +103,6 @@ def update_finetuning_data(
         # remove data_dict without coco bounding box annotations
         list_data_dict = remove_image_with_missing_bbox(list_data_dict, missing_bbox)
 
-    size = min(len(list_data_dict), test_first_k)
-
     if resp_type in ["complex_reasoning", "detail_description"]:
         symbolic_rep_df["human_input"] = symbolic_rep_df.apply(
                 lambda row: str(row["caption"]) + "\n\n" + str(row["bbox"]),
@@ -103,7 +111,16 @@ def update_finetuning_data(
     else:
         symbolic_rep_df["human_input"] = symbolic_rep_df["caption"]
 
-    predict_and_save(list_data_dict, test_first_k, resp_type, starting_img, output_fp)
+    predict_and_save(
+        llm,
+        list_data_dict,
+        symbolic_rep_df,
+        final_prompts,
+        test_first_k,
+        resp_type,
+        starting_img,
+        output_fp,
+    )
 
 # %%
 if __name__ == "__main__":

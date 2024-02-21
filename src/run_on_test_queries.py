@@ -7,20 +7,20 @@ from model_utils import get_all_prompts, read_file
 
 
 llm = Llama(
-    model_path="./models/mistral-7b-instruct-v0.1.Q5_K_M.gguf",
+    model_path="../models/mistral-7b-instruct-v0.1.Q5_K_M.gguf",
     n_batch=4096, # Number of tokens to process in parallel. Should be a number between 1 and n_ctx
     n_ctx=4096,
-    n_gpu_layers=33,
-    chat_format="llama-2",
+    n_gpu_layers=33, # comment out this line to use CPU only
+    chat_format="mistral-instruct",
     verbose=False,
 )
 
 # %%
-final_prompts = get_all_prompts("prompts")
+final_prompts = get_all_prompts("../prompts")
 
 for resp_type, prompts in final_prompts.items():
     print(f"{resp_type} .....................")
-    test_fps = sorted(glob.glob(f"./test_queries/{resp_type}/*_caps.txt"))
+    test_fps = sorted(glob.glob(f"../test_queries/{resp_type}/*_caps.txt"))
     print(test_fps)
 
     for fp in test_fps:
