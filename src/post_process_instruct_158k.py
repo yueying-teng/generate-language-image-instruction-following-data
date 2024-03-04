@@ -6,22 +6,18 @@ from pretrain_595k import replace_instruction, patterns, save_to_json
 from instruct_158k import remove_image_with_missing_bbox
 from data_utils import replacing_instructions_detailed
 
-#%%
-detail_23k_raw_resp_fp = "generated_data/raw_detail_23k.pkl"
-missing_bbox = pd.read_pickle("instruct_150k_missing_bbox.pkl")["image"]
-
 # %%
 def load_post_processing_data(
     json_fp,
     raw_resp_fp,
 ):
-
     with open(json_fp) as f:
         list_data_dict = json.load(f)
 
-    raw_resp_df = pd.read_pickle(raw_resp_fp)
+    raw_resp_df = pd.read_csv(raw_resp_fp)
 
     return list_data_dict, raw_resp_df
+
 # %%
 def post_process_detail_23k(
     json_fp,
@@ -42,14 +38,6 @@ def post_process_detail_23k(
     save_to_json(list_data_dict, output_fp)
 
 # %%
-post_process_detail_23k(
-    json_fp="LLaVA-Instruct-150K/detail_23k.json",
-    raw_resp_fp="generated_data/raw_detail_23k.pkl",
-    replacing_instructions=replacing_instructions_detailed,
-    output_fp="generated_data/detail_23k.json",
-)
-
-# %%
 def post_process_complex_77k(
     json_fp,
     raw_resp_fp,
@@ -63,7 +51,7 @@ def post_process_complex_77k(
 
     for i in range(len(list_data_dict)):
         image = list_data_dict[i]["image"]
-        response = raw_resp_df[raw_resp_df["image"] == image]["responses"].iloc[0]
+        response = raw_resp_df[raw_resp_df["image"] == image]["response"].iloc[0]
 
         qa = response.split("Question:")[-1].split("===")
         question = qa[0].rstrip("\n").strip("\n").strip().rstrip()
@@ -76,13 +64,6 @@ def post_process_complex_77k(
     save_to_json(list_data_dict, output_fp)
 
 # %%
-post_process_complex_77k(
-    json_fp="LLaVA-Instruct-150K/complex_reasoning_77k.json",
-    raw_resp_fp="generated_data/raw_complex_reasoning_77k.pkl",
-    output_fp="generated_data/complex_reasoning_77k.json",
-    missing_bbox=missing_bbox,
-)
-# %%
 def post_process_conv_58k(
     json_fp,
     raw_resp_fp,
@@ -92,7 +73,7 @@ def post_process_conv_58k(
 
     for i in range(len(list_data_dict)):
         image = list_data_dict[i]["image"]
-        response = raw_resp_df[raw_resp_df["image"] == image]["responses"].iloc[0]
+        response = raw_resp_df[raw_resp_df["image"] == image]["response"].iloc[0]
 
         sections = response.split('===')
         qa_list = []
@@ -112,9 +93,48 @@ def post_process_conv_58k(
 
     save_to_json(list_data_dict, output_fp)
 
+
 # %%
-post_process_conv_58k(
-    json_fp="LLaVA-Instruct-150K/conversation_58k.json",
-    raw_resp_fp="generated_data/raw_conversation_58k.pkl",
-    output_fp="generated_data/conversation_58k.json",
-)
+def merge_processed_json_files(
+    json_fps,
+    merged_fp="../generated_data/llava_instruct_150k.json"
+):
+    merged = []
+    for fp in json_fps:
+        with open(fp) as f:
+            merged.extend(json.load(f))
+
+    save_to_json(merged, merged_fp)
+
+# %%
+if __name__ == "__main__":
+
+    missing_bbox = pd.read_pickle("symbolic_rep_data/instruct_150k_missing_bbox.pkl")["image"]
+
+    post_process_detail_23k(
+        json_fp="LLaVA-Instruct-150K/detail_23k.json",
+        raw_resp_fp="generated_data/raw_detail_23k.csv",
+        replacing_instructions=replacing_instructions_detailed,
+        output_fp="generated_data/detail_23k.json",
+    )
+
+    post_process_complex_77k(
+        json_fp="LLaVA-Instruct-150K/complex_reasoning_77k.json",
+        raw_resp_fp="generated_data/raw_complex_reasoning_77k.csv",
+        output_fp="generated_data/complex_reasoning_77k.json",
+        missing_bbox=missing_bbox,
+    )
+
+    post_process_conv_58k(
+        json_fp="LLaVA-Instruct-150K/conversation_58k.json",
+        raw_resp_fp="generated_data/raw_conversation_58k.csv",
+        output_fp="generated_data/conversation_58k.json",
+    )
+
+    merge_processed_json_files(
+        json_fps=[
+        "generated_data/detail_23k.json",
+        "generated_data/complex_reasoning_77k.json",
+        "generated_data/conversation_58k.json",
+        ],
+    )

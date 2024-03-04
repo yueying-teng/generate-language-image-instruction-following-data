@@ -84,9 +84,9 @@ def gather_symbolic_rep_instruct_150k(instruct_150k_json_fps, df):
         )
 
     df = df[df["image"].isin(image)]
-    df.to_pickle("symbolic_representation_instruct_150k.pkl")
+    df.to_pickle("symbolic_rep_data/symbolic_representation_instruct_150k.pkl")
 
-    df[df["bbox"].isnull()].to_pickle("instruct_150k_missing_bbox.pkl")
+    df[df["bbox"].isnull()].to_pickle("symbolic_rep_data/instruct_150k_missing_bbox.pkl")
 
 if __name__ == "__main__":
     captions_paths = [
@@ -113,7 +113,7 @@ if __name__ == "__main__":
     # (123287, 122218)
     symbolic_rep_df = pd.merge(captions_df, instances_df, on="image", how="left")
     # 123287
-    symbolic_rep_df.to_pickle("symbolic_representation_coco_trainval_2017.pkl")
+    symbolic_rep_df.to_pickle("symbolic_rep_data/symbolic_representation_coco_trainval_2017.pkl")
 
     # gather symbolic representations of images in LLaVA-Instruct-150K
     instruct_150k_json_fps = [
