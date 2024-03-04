@@ -93,6 +93,19 @@ def post_process_conv_58k(
 
     save_to_json(list_data_dict, output_fp)
 
+
+# %%
+def merge_processed_json_files(
+    json_fps,
+    merged_fp="../generated_data/llava_instruct_150k.json"
+):
+    merged = []
+    for fp in json_fps:
+        with open(fp) as f:
+            merged.extend(json.load(f))
+
+    save_to_json(merged, merged_fp)
+
 # %%
 if __name__ == "__main__":
 
@@ -116,4 +129,12 @@ if __name__ == "__main__":
         json_fp="LLaVA-Instruct-150K/conversation_58k.json",
         raw_resp_fp="generated_data/raw_conversation_58k.csv",
         output_fp="generated_data/conversation_58k.json",
+    )
+
+    merge_processed_json_files(
+        json_fps=[
+        "generated_data/detail_23k.json",
+        "generated_data/complex_reasoning_77k.json",
+        "generated_data/conversation_58k.json",
+        ],
     )
