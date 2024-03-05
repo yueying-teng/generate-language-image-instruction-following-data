@@ -95,10 +95,7 @@ def post_process_conv_58k(
 
 
 # %%
-def merge_processed_json_files(
-    json_fps,
-    merged_fp="../generated_data/llava_instruct_150k.json"
-):
+def merge_processed_json_files(json_fps, merged_fp):
     merged = []
     for fp in json_fps:
         with open(fp) as f:
@@ -133,8 +130,9 @@ if __name__ == "__main__":
 
     merge_processed_json_files(
         json_fps=[
-        "generated_data/detail_23k.json",
-        "generated_data/complex_reasoning_77k.json",
-        "generated_data/conversation_58k.json",
+            "generated_data/detail_23k.json",
+            "generated_data/complex_reasoning_77k.json",
+            "generated_data/conversation_58k.json",
         ],
+       merged_fp="generated_data/llava_instruct_150k.json"
     )
