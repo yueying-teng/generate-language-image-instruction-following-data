@@ -134,5 +134,5 @@ if __name__ == "__main__":
             "generated_data/complex_reasoning_77k.json",
             "generated_data/conversation_58k.json",
         ],
-       merged_fp="generated_data/llava_instruct_150k.json"
+       merged_fp="generated_data/mistral_generated_llava_instruct_150k.json"
     )
