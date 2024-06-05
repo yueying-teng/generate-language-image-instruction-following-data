@@ -135,10 +135,14 @@ pip install llama_cpp_python==0.2.43 --force-reinstall --upgrade --no-cache-dir
         - `generated_data/raw_detail_23k_{%Y_%m_%d_%H_%M_%S}.csv`
         - `generated_data/raw_complex_reasoning_77k_{%Y_%m_%d_%H_%M_%S}.csv`
         - `generated_data/raw_conversation_58k_{%Y_%m_%d_%H_%M_%S}.csv` respectively.
-    3. Then run `src/post_process_instruct_158k.py` to parse the generated text and recreate the LLaVA training data, which share the same format as those in [LLaVA-Instruct-150K](https://huggingface.co/datasets/liuhaotian/LLaVA-Instruct-150K). They will be saved in
-        - `generated_data/complex_reasoning_77k.json`
-        - `generated_data/conversation_58k.json`
-        - `generated_data/detail_23k.json`
+    3. Then run `src/post_process_instruct_158k.py` to parse the generated text and recreate the LLaVA training data, which share the same format as those in [LLaVA-Instruct-150K](https://huggingface.co/datasets/liuhaotian/LLaVA-Instruct-150K).
+        - NOTE that you'll need to change `raw_resp_fp` in each post processing function to be `output_fp` from step 2
+        - After post processing, there will be four new files
+            - `generated_data/complex_reasoning_77k.json`
+            - `generated_data/conversation_58k.json`
+            - `generated_data/detail_23k.json`
+            - `generated_data/mistral_generated_llava_instruct_150k`
+        - `generated_data/mistral_generated_llava_instruct_150k` is the final finetuning dataset from merging the first three files together
 
 
 ### Example generated data using `Mistral-7B-Instruct-v0.1`
