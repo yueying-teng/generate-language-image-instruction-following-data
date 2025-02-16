@@ -1,8 +1,9 @@
-"""
+## Inference improvement
+
 ggml models are not thread safe
 https://github.com/marella/ctransformers/issues/38#issuecomment-1613627309
 
-llama_cpp.Llama.create_chat_completion does not support batch inference
+`llama_cpp.Llama.create_chat_completion` does not support batch inference
 
 with one GPU
 - due to GIL, multi-threading has no effect
@@ -17,4 +18,6 @@ with one GPU
 
 with multiple GPUs
 - multi-processing will be more effective
-"""
+    - but without the support of batch inference, each GPU won't be fully utilized
+
+the only option is to explore other libraries and model formats
